@@ -21,7 +21,8 @@ class ServerConnection:
         print(f'Server listening on {self.host}:{self.port}...')
 
         self.server_running = True
-        threading.Thread(target=self.accept_connections).start()
+        self.accept_connections()
+        input()
 
 
     def accept_connections(self):
@@ -30,8 +31,16 @@ class ServerConnection:
 
             try:
                 client_socket, client_address = self.server_socket.accept()
-                client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
-                client_thread.start()
+
+                choice  = input(f'Would you like to accept connection from {client_address} - yes/no: ')
+
+                if choice.lower() in ['yes', 'y']:
+                    self.handle_client(client_socket, client_address)
+                
+                else: 
+                    
+                    client_socket.sendall(b"Connection rejected by server")
+                    client_socket.close()
             
             except socket.error:
                 #TODO
@@ -40,21 +49,19 @@ class ServerConnection:
     
     def handle_client(self, client_socket, client_address):
 
-        with self.lock:
+        if self.current_connections < self.max_connections:
 
-            if self.current_connections < self.max_connections:
-
-                self.current_connections += 1
-                print(f'Connection with {client_address} accepted!')
-                client_socket.sendall(b"Connection accepted by server!")
+            self.current_connections += 1
+            print(f'Connection with {client_address} accepted!')
+            client_socket.sendall(b"Connection accepted by server!")
             
-            else:
+        else:
 
-                print(f'Connection with {client_address} rejected - connections limit reached!')
-                client_socket.sendall(b"Connection rejected by server!")
-                client_socket.close()
+            print(f'Connection with {client_address} rejected - connections limit reached!')
+            client_socket.sendall(b"Connection rejected by server!")
+            client_socket.close()
 
-                return
+            return
 
 
     def stop_server(self):
@@ -62,3 +69,5 @@ class ServerConnection:
         self.server_running = False
         self.server_socket.close()
         print("Server is stopped")
+
+        
