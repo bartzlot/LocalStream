@@ -16,9 +16,9 @@ class ClientConnection():
         try:
 
             self.client_socket.connect((self.host, self.port))
-            print(f'Connected to {self.host}:{self.port}')
+            print(f'Connecting to {self.host}:{self.port}')
             self.connection_validator = True
-            threading.Thread(target=self.receive_data).start()  
+            self.receive_data()
 
         except ConnectionRefusedError:
 
@@ -73,3 +73,4 @@ class ClientConnection():
                 self.connection_validator = False
         # self.close_connection() 
         self.client_socket.close()
+
