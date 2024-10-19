@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 class FileManager:
 
@@ -24,8 +25,9 @@ class FileManager:
 
                 file_name = os.path.basename(file_path)
                 file_size = str(round(os.path.getsize(file_path) / 1024**2, 2))
-
-                return [file_data, file_name, file_size]
+                file_ext = pathlib.Path(file_path).suffix
+                
+                return [file_data, file_name, file_size, file_ext]
              
         except FileNotFoundError:
             print(f"File '{file_path}' not found.")

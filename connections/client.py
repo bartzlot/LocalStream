@@ -19,7 +19,7 @@ class ClientConnection():
             self.client_socket.connect((self.host, self.port))
             print(f'Connecting to {self.host}:{self.port}')
             self.connection_validator = True
-            self.receive_data(b"/INFO/")
+            self.receive_messages(b"/INFO/")
 
         except ConnectionRefusedError:
 
@@ -27,8 +27,45 @@ class ClientConnection():
             self.client_socket.close()
 
 
-    def receive_file(self, chunk_size: int, EOF_flag: bytes):
+    def accept_file(self, INFO_flag: bytes):
 
+        data = b""
+
+        while self.connection_validator and INFO_flag not in data:
+
+            try:
+
+                data += self.client_socket.recv(1)
+
+                if not data:
+                    break     
+
+            except ConnectionRefusedError:
+                print(f'Connection with server got closed!')
+                self.connection_validator = False
+        
+        print(f'Would you like to accept transfer of:\n {data.split(INFO_flag)[0].decode()}')
+        choice  = input('yes/no: ')
+
+        if choice.lower() in ['yes', 'y']:
+
+            self.client_socket.sendall(b"/ACK/" + INFO_flag)
+            return True
+
+        elif choice.lower() in ['no', 'n']:
+
+            self.client_socket.sendall(b"/RST/" + INFO_flag)
+            return False
+        
+        else:
+
+            self.client_socket.sendall(b"/RST/" + INFO_flag)
+            return False
+
+
+    def receive_file(self, chunk_size: int):
+
+        EOF_flag = self.receive_EOF_flag(b'/INFO/')
         file_data = bytearray()
         chunk = b''
 
@@ -39,13 +76,28 @@ class ClientConnection():
 
         return file_data
 
-    # def close_connection(self):
-    #     if self.connection_validator:
-    #         self.connection_validator = False
-    #         self.client_socket.close()
-    #         print("Client connection closed.")
 
-    def receive_data(self, INFO_flag: bytes):
+    def receive_EOF_flag(self, INFO_flag: bytes):
+
+        data = b""
+
+        while self.connection_validator and INFO_flag not in data: 
+
+            try:
+
+                data += self.client_socket.recv(1)
+
+                if not data:
+                    break     
+
+            except ConnectionRefusedError:
+                print(f'Connection with server got closed!')
+                self.connection_validator = False
+
+        return data.split(INFO_flag)[0]
+
+
+    def receive_messages(self, INFO_flag: bytes):
 
         data = b""
 

@@ -69,20 +69,51 @@ class ServerConnection:
                 return
 
 
-    def send_file_request(self, file_name: str, file_size: str, chunk_size: int):
-        pass
+    def send_file_request(self, file_name: str, file_size: str, chunk_size: int, INFO_flag: bytes):
+        
+        file_metadata = (f"File: {file_name}\nSize: {file_size} Mb\nChunk: {str(chunk_size)} B").encode('utf-8') + INFO_flag
+        self.client_socket.sendall(file_metadata)
 
     
-    def send_EOF(self, EOF_flag: bytes):
-        pass
+    def send_EOF(self, EOF_flag: bytes, INFO_flag: bytes):
+        self.client_socket.sendall(EOF_flag + INFO_flag)
     
+
+    def receive_answer(self, INFO_flag: bytes):
+
+        data = b""
+
+        while self.server_running and not (b"/ACK/" in data or b"/RST/" in data):
+
+            try:
+
+                data += self.client_socket.recv(1)
+
+                if not data:
+                    break     
+
+            except ConnectionRefusedError:
+                print(f'Connection with server got closed!')
+                self.server_running = False 
+
+        result = data.split(b'/INFO/')[0]
+
+        if result == b"/ACK/":
+            return True
+        
+        else:
+            return False
+        
 
     def send_file(self, file_data: bytes, chunk_size: int):
 
         if not isinstance(file_data, bytes):
             raise ValueError("file_data must be a bytes-like object.")
-
+        
+        print('Sending EOF flag...')
+        self.send_EOF(b'/END/', b'/INFO/')
         print('Sending file...')
+
         for i in range(0, len(file_data), chunk_size):
 
             chunk = file_data[i:i + chunk_size]
@@ -93,6 +124,7 @@ class ServerConnection:
             
             except Exception as e:
                 print(f'An error occured while sending the file: {e}')
+
         print('Done...')
 
 
