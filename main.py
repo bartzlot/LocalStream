@@ -14,7 +14,7 @@ if __name__ == "__main__":
     server.start_server()
     
     
-    file_path = "/Users/bartzlot/Programming/LocalStream/cat.txt"
+    file_path = ""
     file_data = FileManager.read_file(file_path, 1024, b'/END/')
 
     server.send_file_request(file_data[1], file_data[2], 1024, b'/INFO/')

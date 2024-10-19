@@ -5,7 +5,7 @@ client.connect_to_server()
 
 if client.accept_file(b'/INFO/'):
     file = client.receive_file(1024)
-    FileManager.save_file('/Users/bartzlot/Programming/LocalStream/cat_rec.txt', file, b'/END/')
+    FileManager.save_file('', file, b'/END/')
 
 else:
     exit()
