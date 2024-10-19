@@ -12,13 +12,18 @@ if __name__ == "__main__":
     server = ServerConnection(host='127.0.0.1', port=1234, max_connections=1)
     server_manager.add_connection(server)
     server.start_server()
-    print(server_manager)
+    
     
     file_path = ""
-    file_data = FileManager.read_file(file_path)
+    file_data = FileManager.read_file(file_path, 1024, b'/END/')
 
-    if file_data:
-        client.send_file(file_data, "TEST.txt")
-        print("File sent to the server.")
+    server.send_file_request(file_data[1], file_data[2], 1024, b'/INFO/')
+
+    if server.receive_answer(b'/INFO/'):
+        server.send_file(file_data[0], 1024)
+    
+    else:
+        server.stop_server()
+
         
 
