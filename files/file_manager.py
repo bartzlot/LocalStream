@@ -3,7 +3,6 @@ import pathlib
 
 class FileManager:
 
-
     @staticmethod
     def read_file(file_path: str, chunk_size: int, EOF_flag: bytes):
 
@@ -30,10 +29,13 @@ class FileManager:
                 return [file_data, file_name, file_size, file_ext]
              
         except FileNotFoundError:
-            print(f"File '{file_path}' not found.")
+            print(f"[FileManager.read_file] Error: File '{file_path}' not found.")
 
+        except IOError as e:
+            print(f"[FileManager.read_file] I/O error occurred while reading the file: {e}")
+            
         except Exception as e:
-            print(f"An error occurred while reading the file: {e}")
+            print(f"[FileManager.read_file] An unexpected error occurred while reading the file: {e}")
 
         return None
 
@@ -47,10 +49,12 @@ class FileManager:
                 file.write(file_bytes.split(EOF_flag)[0])
             
         except FileNotFoundError:
-            print(f"File '{file_path}' not found.")
+            print(f"[FileManager.save_file] Error: File '{file_path}' not found.")
 
+        except IOError as e:
+            print(f"[FileManager.save_file] I/O error occurred while writing the file: {e}")
+            
         except Exception as e:
-
-            print(f"An error occurred while reading the file: {e}")
+            print(f"[FileManager.save_file] An unexpected error occurred while saving the file: {e}")
 
         return None
