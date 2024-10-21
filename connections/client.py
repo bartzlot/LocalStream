@@ -13,6 +13,7 @@ class ClientConnection():
 
     
     def connect_to_server(self):
+
         try:
             self.client_socket.connect((self.host, self.port))
             print(f'Connecting to {self.host}:{self.port}')
@@ -32,6 +33,7 @@ class ClientConnection():
             self.client_socket.close()
             
     def accept_file(self, INFO_flag: bytes):
+
         data = b""
 
         try:
@@ -86,6 +88,7 @@ class ClientConnection():
             return False
 
     def receive_file(self, chunk_size: int):
+
         try:
             EOF_flag = self.receive_EOF_flag(b'/INFO/')
             file_data = bytearray()
@@ -110,6 +113,7 @@ class ClientConnection():
             self.connection_validator = False
 
     def receive_EOF_flag(self, INFO_flag: bytes):
+
         data = b""
 
         try:
@@ -137,7 +141,9 @@ class ClientConnection():
 
 
     def receive_messages(self, INFO_flag: bytes):
+
         data = b""
+        
         try:
             while self.connection_validator and INFO_flag not in data:
                 data += self.client_socket.recv(1)
