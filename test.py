@@ -21,7 +21,7 @@ if __name__ == "__main__":
         # Sprawdzenie, czy klient akceptuje żądanie pliku
         if client.accept_file(b'/INFO/'):
             file_data = client.receive_file(1024)
-            final_file_path = 'output.txt'
+            final_file_path = ''
 
             # Zapisanie pliku
             FileManager.save_file(final_file_path, file_data, b'/END/')
