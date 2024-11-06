@@ -11,7 +11,7 @@ if __name__ == "__main__":
     server.start_server()
 
     try:
-        file_path = "input.txt"
+        file_path = ""
 
         # Generowanie klucza AES
         aes_key = os.urandom(32)

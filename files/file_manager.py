@@ -91,7 +91,16 @@ class FileManager:
                     file_data += chunk
 
                 file_name = os.path.basename(file_path)
-                file_size = str(round(os.path.getsize(file_path) / 1024 ** 2, 2))
+                
+                file_size_bytes = os.path.getsize(file_path)
+            
+                if file_size_bytes < 1024:  
+                    file_size = f"{file_size_bytes} B"
+                elif file_size_bytes < 1024**2:
+                    file_size = f"{file_size_bytes / 1024:.2f} KB"
+                else:  
+                    file_size = f"{round(file_size_bytes / 1024**2, 2)} MB"
+                    
                 file_ext = pathlib.Path(file_path).suffix
 
                 return [file_data, file_name, file_size, file_ext]

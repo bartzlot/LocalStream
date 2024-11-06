@@ -139,7 +139,7 @@ class ServerConnection:
         return encrypted_key
 
     def send_file_request(self, file_name: str, file_size: str, chunk_size: int, INFO_flag: bytes):
-        file_metadata = (f"File: {file_name}\nSize: {file_size} Mb\nChunk: {str(chunk_size)} B").encode('utf-8') + INFO_flag
+        file_metadata = (f"File: {file_name}\nSize: {file_size} \nChunk: {str(chunk_size)} B").encode('utf-8') + INFO_flag
         try:
             self.client_socket.sendall(file_metadata)
         except socket.error as e:
