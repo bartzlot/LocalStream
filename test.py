@@ -18,13 +18,15 @@ if __name__ == "__main__":
         aes_key = client.decrypt_with_private_key(encrypted_aes_key)
         print("AES key decrypted.")
 
+
+
         # Sprawdzenie, czy klient akceptuje żądanie pliku
-        if client.accept_file(b'/INFO/'):
+        if client.accept_file():
             file_data = client.receive_file(1024)
-            final_file_path = ''
+            final_file_path = 'test_received.txt'
 
             # Zapisanie pliku
-            FileManager.save_file(final_file_path, file_data, b'/END/')
+            FileManager.save_file(final_file_path, file_data)
 
             # Odszyfrowanie zapisanego pliku za pomocą klucza AES
             FileManager.decrypt_file(final_file_path, aes_key)

@@ -1,10 +1,30 @@
 import os
 import pathlib
+import json
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 
 class FileManager:
+
+    @staticmethod
+    def read_json(file_path: str):
+
+        try:
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+                return data
+
+        except FileNotFoundError:
+            print(f"[FileManager.read_json] Error: File '{file_path}' not found.")
+
+        except IOError as e:
+            print(f"[FileManager.read_json] I/O error occurred while reading the file: {e}")
+
+        except Exception as e:
+            print(f"[FileManager.read_json] An unexpected error occurred: {e}")
+
+        return None
 
     @staticmethod
     def encrypt_file(file_path, key):

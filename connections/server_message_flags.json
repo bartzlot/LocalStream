@@ -1,0 +1,8 @@
+{
+    "flags": {
+      "INFO": "/INFO/",
+      "END": "/END/",
+      "ACK": "/ACK/",
+      "RST": "/RST/"
+    }
+  }

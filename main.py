@@ -11,7 +11,7 @@ if __name__ == "__main__":
     server.start_server()
 
     try:
-        file_path = ""
+        file_path = "test.txt"
 
         # Generowanie klucza AES
         aes_key = os.urandom(32)
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         # Szyfrowanie pliku
         enc_file_path = FileManager.encrypt_file(file_path, aes_key)
         if enc_file_path:
-            file_data = FileManager.read_file(enc_file_path, 1024, b'/END/')
+            file_data = FileManager.read_file(enc_file_path, 1024, server.message_flags['END'])
         else:
             raise Exception(f"Error during file encryption: {file_path}")
 
@@ -47,6 +47,7 @@ if __name__ == "__main__":
         # Sprawdzenie, czy klient jest połączony
         if server.client_socket:
             try:
+
                 print("Sending public key to client...")
                 server.send_public_key()
 
@@ -59,9 +60,9 @@ if __name__ == "__main__":
                 server.client_socket.sendall(encrypted_aes_key)
 
                 # Wysłanie żądania pliku do klienta
-                server.send_file_request(file_data[1], file_data[2], 1024, b'/INFO/')
+                server.send_file_request(file_data[1], file_data[2], 1024)
 
-                if server.receive_answer(b'/INFO/'):
+                if server.receive_answer():
                     # Wysłanie zaszyfrowanego pliku do klienta
                     server.send_file(file_data[0], 1024)
                     FileManager.delete_file(enc_file_path)
