@@ -5,10 +5,9 @@ from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
-#from files.file_manager import FileManager
+
 
 class ClientConnection:
-
 
     def __init__(self, host, port):
         self.host = host
@@ -16,11 +15,9 @@ class ClientConnection:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection_validator = False
         self.message_flags = None
+        self.mac_address = None
         # Generowanie kluczy RSA
         self.private_key, self.public_key = self.generate_rsa_keys()
-
-
-
 
     def connect_to_server(self):
         try:
@@ -90,7 +87,6 @@ class ClientConnection:
         )
         print("Server public key received.")
         return server_public_key
-
 
     def decrypt_with_private_key(self, encrypted_data):
         try:

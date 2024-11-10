@@ -23,6 +23,7 @@ class ServerConnection:
         self.server_running = False
         self.message_flags = self.convert_message_flags(self.load_message_flags())
         print(self.message_flags['INFO'])
+        self.mac_address = None
 
         # Generowanie pary kluczy RSA
         self.rsa_key_pair = rsa.generate_private_key(
@@ -31,6 +32,8 @@ class ServerConnection:
             backend=default_backend()
         )
         self.save_keys_to_files(self.rsa_key_pair)
+
+        self.restored_server_public_key = self.rsa_key_pair.public_key()
 
 
     def load_message_flags(self):
@@ -134,6 +137,14 @@ class ServerConnection:
         self.client_socket.sendall(public_key_pem + self.message_flags['END'])
         print("Public key sent to client.")
 
+    def send_public_key_restored(self):
+        # Używamy wczytanego klucza publicznego z pliku
+        public_key_pem = self.restored_server_public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        self.client_socket.sendall(public_key_pem + self.message_flags['END'])
+        print("Public key sent to client.")
 
     def receive_public_key(self, client_socket):
         client_public_key_pem = b""
@@ -202,7 +213,7 @@ class ServerConnection:
             raise ValueError("file_data must be a bytes-like object.")
         try:
             print('Sending EOF flag...')
-            self.send_EOF(self.message_flags['END'], self.message_flags['INFO'])
+            self.send_EOF(self.message_flags['END'])
             print('Sending file...')
             for i in range(0, len(file_data), chunk_size):
                 chunk = file_data[i:i + chunk_size]
