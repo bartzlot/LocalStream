@@ -1,5 +1,6 @@
 from connections.server import ServerConnection
 from connections.client import ClientConnection
+from files.error_handler import ErrorHandler
 from connections.connection_management import ServerConnectionsManager
 from files.file_manager import FileManager
 import os
@@ -23,24 +24,8 @@ if __name__ == "__main__":
         else:
             raise Exception(f"Error during file encryption: {file_path}")
 
-    except FileNotFoundError:
-        print(f"[Main] Error: The file '{file_path}' was not found. Please check the file path and try again.")
-        server.stop_server()
-
-    except IOError as e:
-        print(f"[Main] Error: An I/O error occurred while handling the file: {e}")
-        server.stop_server()
-
-    except ValueError:
-        print(f"[Main] Error: Invalid file path provided. Please ensure the file path is correct.")
-        server.stop_server()
-
-    except TypeError as e:
-        print(f"[Main] Error: Type error occurred while handling the file - {e}. Please check the arguments passed.")
-        server.stop_server()
-
     except Exception as e:
-        print(f"[Main] An unexpected error occurred: {e}")
+        ErrorHandler.error_handling("File_encryption", e)
         server.stop_server()
 
     else:
@@ -71,12 +56,8 @@ if __name__ == "__main__":
                     print("[Main] Client declined the file request.")
                     server.stop_server()
 
-            except IOError as e:
-                print(f"[Main] Error: I/O error occurred during client-server communication: {e}")
-                server.stop_server()
-
             except Exception as e:
-                print(f"[Main] An unexpected error occurred during client-server communication: {e}")
+                ErrorHandler.error_handling("Main", e)
                 server.stop_server()
 
         else:
