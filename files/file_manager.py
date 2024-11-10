@@ -1,11 +1,13 @@
 import os
 import pathlib
 import json
+from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 
 class FileManager:
+
 
     @staticmethod
     def read_json(file_path: str):
@@ -15,14 +17,8 @@ class FileManager:
                 data = json.load(file)
                 return data
 
-        except FileNotFoundError:
-            print(f"[FileManager.read_json] Error: File '{file_path}' not found.")
-
-        except IOError as e:
-            print(f"[FileManager.read_json] I/O error occurred while reading the file: {e}")
-
         except Exception as e:
-            print(f"[FileManager.read_json] An unexpected error occurred: {e}")
+            ErrorHandler.error_handling("read_json", e)
 
         return None
 
@@ -49,14 +45,8 @@ class FileManager:
             print(f"File encrypted: {encrypted_file_path}")
             return encrypted_file_path
 
-        except FileNotFoundError:
-            print(f"[FileManager.encrypt_file] Error: File '{file_path}' not found.")
-
-        except IOError as e:
-            print(f"[FileManager.encrypt_file] I/O error occurred while encrypting the file: {e}")
-
         except Exception as e:
-            print(f"[FileManager.encrypt_file] An unexpected error occurred: {e}")
+            ErrorHandler.error_handling("encrypt_file", e)
 
         return None
 
@@ -82,14 +72,8 @@ class FileManager:
             print(f"File decrypted: {decrypted_file_path}")
             return decrypted_file_path
 
-        except FileNotFoundError:
-            print(f"[FileManager.decrypt_file] Error: Encrypted file '{encrypted_file_path}' not found.")
-
-        except IOError as e:
-            print(f"[FileManager.decrypt_file] I/O error occurred while decrypting the file: {e}")
-
         except Exception as e:
-            print(f"[FileManager.decrypt_file] An unexpected error occurred: {e}")
+            ErrorHandler.error_handling("decrypt_file", e)
 
         return None
 
@@ -125,14 +109,8 @@ class FileManager:
 
                 return [file_data, file_name, file_size, file_ext]
 
-        except FileNotFoundError:
-            print(f"[FileManager.read_file] Error: File '{file_path}' not found.")
-
-        except IOError as e:
-            print(f"[FileManager.read_file] I/O error occurred while reading the file: {e}")
-
         except Exception as e:
-            print(f"[FileManager.read_file] An unexpected error occurred while reading the file: {e}")
+            ErrorHandler.error_handling("read_file", e)
 
         return None
 
@@ -143,14 +121,8 @@ class FileManager:
             with open(file_path, "wb") as file:
                 file.write(file_bytes.split(EOF_flag)[0])
 
-        except FileNotFoundError:
-            print(f"[FileManager.save_file] Error: File '{file_path}' not found.")
-
-        except IOError as e:
-            print(f"[FileManager.save_file] I/O error occurred while saving the file: {e}")
-
         except Exception as e:
-            print(f"[FileManager.save_file] An unexpected error occurred while saving the file: {e}")
+            ErrorHandler.error_handling("save_file", e)
 
         return None
 
@@ -160,11 +132,8 @@ class FileManager:
             os.remove(file_path)
             print(f"File '{file_path}' successfully deleted.")
 
-        except FileNotFoundError:
-            print(f"[FileManager.delete_file] Error: File '{file_path}' not found.")
-
-        except OSError as e:
-            print(f"[FileManager.delete_file] Error occurred during file deletion: {e}")
-
         except Exception as e:
-            print(f"[FileManager.delete_file] An unexpected error occurred: {e}")
+            ErrorHandler.error_handling("delete_file", e)
+
+
+

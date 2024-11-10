@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
@@ -29,16 +30,8 @@ class ClientConnection:
             self.receive_message_flags()
             self.receive_messages()
 
-
-            
-        except ConnectionRefusedError:
-            print(f'[ClientConnection.connect_to_server] Connection failed! The server is unavailable or refused the connection.')
-            self.client_socket.close()
-        except OSError as e:
-            print(f'[ClientConnection.connect_to_server] OS error occurred: {e}')
-            self.client_socket.close()
         except Exception as e:
-            print(f'[ClientConnection.connect_to_server] An unexpected error occurred: {e}')
+            ErrorHandler.error_handling("connect_to_server", e)
             self.client_socket.close()
 
 
@@ -111,7 +104,7 @@ class ClientConnection:
             )
             return aes_key
         except Exception as e:
-            print(f"An error occurred while decrypting: {e}")
+            ErrorHandler.error_handling("decrypt_with_private_key", e)
             return None
 
 
@@ -122,17 +115,9 @@ class ClientConnection:
                 data += self.client_socket.recv(1)
                 if not data:
                     break
-        except ConnectionResetError:
-            print(f'[ClientConnection.accept_file] Connection with the server was reset unexpectedly.')
-            self.connection_validator = False
-        except socket.timeout:
-            print(f'[ClientConnection.accept_file] Timeout while waiting for data from server.')
-            self.connection_validator = False
-        except OSError as e:
-            print(f'[ClientConnection.accept_file] OS error occurred during file acceptance: {e}')
-            self.connection_validator = False
+
         except Exception as e:
-            print(f'[ClientConnection.accept_file] An unexpected error occurred: {e}')
+            ErrorHandler.error_handling("accept_file", e)
             self.connection_validator = False
 
         print(f'Would you like to accept transfer of:\n {data.split(self.message_flags['INFO'])[0].decode()}')
@@ -144,15 +129,9 @@ class ClientConnection:
             else:
                 self.client_socket.sendall(self.message_flags['RST'] + self.message_flags['INFO'])
                 return False
-        except BrokenPipeError:
-            print(f'[ClientConnection.accept_file] Error: Tried to send data on a closed connection.')
-            self.connection_validator = False
-            return False
-        except OSError as e:
-            print(f'[ClientConnection.accept_file] OS error while sending response to server: {e}')
-            return False
+
         except Exception as e:
-            print(f'[ClientConnection.accept_file] An unexpected error occurred: {e}')
+            ErrorHandler.error_handling("accept_file", e)
             return False
 
 
@@ -166,14 +145,9 @@ class ClientConnection:
                 chunk = self.client_socket.recv(chunk_size)
                 file_data += chunk
             return file_data
-        except ConnectionResetError:
-            print(f'[ClientConnection.receive_file] Connection with the server was reset during file reception.')
-            self.connection_validator = False
-        except OSError as e:
-            print(f'[ClientConnection.receive_file] OS error occurred during file reception: {e}')
-            self.connection_validator = False
+
         except Exception as e:
-            print(f'[ClientConnection.receive_file] An unexpected error occurred during file reception: {e}')
+            ErrorHandler.error_handling("receive_file", e)
             self.connection_validator = False
 
 
@@ -184,17 +158,9 @@ class ClientConnection:
                 data += self.client_socket.recv(1)
                 if not data:
                     break
-        except ConnectionResetError:
-            print(f'[ClientConnection.receive_messages] Connection with the server was reset unexpectedly.')
-            self.connection_validator = False
-        except socket.timeout:
-            print(f'[ClientConnection.receive_messages] Timeout occurred while receiving data from the server.')
-            self.connection_validator = False
-        except OSError as e:
-            print(f'[ClientConnection.receive_messages] OS error occurred while receiving data: {e}')
-            self.connection_validator = False
+
         except Exception as e:
-            print(f'[ClientConnection.receive_messages] An unexpected error occurred while receiving data: {e}')
+            ErrorHandler.error_handling("receive_EOF_flag", e)
             self.connection_validator = False
         return data.split(self.message_flags['INFO'])[0]
 
@@ -216,17 +182,8 @@ class ClientConnection:
                 }
             print(f"Received message flags from server: {self.message_flags}")
 
-        except ConnectionResetError:
-            print(f'[ClientConnection.receive_messages] Connection with the server was reset unexpectedly.')
-            self.connection_validator = False
-        except socket.timeout:
-            print(f'[ClientConnection.receive_messages] Timeout occurred while receiving data from the server.')
-            self.connection_validator = False
-        except OSError as e:
-            print(f'[ClientConnection.receive_messages] OS error occurred while receiving data: {e}')
-            self.connection_validator = False
         except Exception as e:
-            print(f'[ClientConnection.receive_messages] An unexpected error occurred while receiving data: {e}')
+            ErrorHandler.error_handling("receive_message_flags", e)
             self.connection_validator = False
 
 
@@ -238,17 +195,8 @@ class ClientConnection:
                 if not data:
                     break
 
-        except ConnectionResetError:
-            print(f'[ClientConnection.receive_messages] Connection with the server was reset unexpectedly.')
-            self.connection_validator = False
-        except socket.timeout:
-            print(f'[ClientConnection.receive_messages] Timeout occurred while receiving data from the server.')
-            self.connection_validator = False
-        except OSError as e:
-            print(f'[ClientConnection.receive_messages] OS error occurred while receiving data: {e}')
-            self.connection_validator = False
         except Exception as e:
-            print(f'[ClientConnection.receive_messages] An unexpected error occurred while receiving data: {e}')
+            ErrorHandler.error_handling("receive_messages", e)
             self.connection_validator = False
 
         print(f'Received from server: {data.split(self.message_flags['INFO'])[0].decode()}')

@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 from os.path import join, dirname, abspath
+from files.error_handler import ErrorHandler
 from files.file_manager import FileManager
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -83,7 +84,7 @@ class ServerConnection:
             self.server_running = False
 
         except Exception as e:
-            print(f"[ServerConnection.start_server] Unexpected error: {e}")
+            ErrorHandler.error_handling("start_server", e)
 
 
     def accept_connections(self):
@@ -99,14 +100,8 @@ class ServerConnection:
                     self.client_socket.sendall(b"Connection rejected by server..." + self.message_flags['INFO'])
                     self.client_socket.close()
 
-            except socket.timeout as e:
-                print(f"[ServerConnection.accept_connections] Socket timeout occurred: {e}")
-
-            except socket.error as e:
-                print(f"[ServerConnection.accept_connections] Socket error during connection acceptance: {e}")
-
             except Exception as e:
-                print(f"[ServerConnection.accept_connections] Unexpected error: {e}")
+                ErrorHandler.error_handling("accept_connections", e)
 
 
     def handle_client(self):
@@ -128,7 +123,7 @@ class ServerConnection:
                     self.client_socket.close()
 
         except Exception as e:
-            print(f"[ServerConnection.handle_client] Unexpected error: {e}")
+            ErrorHandler.error_handling("handle_client", e)
 
 
     def send_public_key(self):
@@ -170,10 +165,9 @@ class ServerConnection:
         file_metadata = (f"File: {file_name}\nSize: {file_size} \nChunk: {str(chunk_size)} B").encode('utf-8') + self.message_flags['INFO']
         try:
             self.client_socket.sendall(file_metadata)
-        except socket.error as e:
-            print(f"[ServerConnection.send_file_request] Error sending file metadata: {e}")
+
         except Exception as e:
-            print(f"[ServerConnection.send_file_request] Unexpected error: {e}")
+            ErrorHandler.error_handling("send_file_request", e)
 
 
     def send_EOF(self, EOF_flag: bytes):
@@ -197,10 +191,9 @@ class ServerConnection:
                 return True
             else:
                 return False
-        except socket.error as e:
-            print(f"[ServerConnection.receive_answer] Error while receiving response: {e}")
+
         except Exception as e:
-            print(f"[ServerConnection.receive_answer] Unexpected error: {e}")
+            ErrorHandler.error_handling("receive_answer", e)
         return False
 
 
@@ -233,7 +226,7 @@ class ServerConnection:
             print(f"Message flags have been sent to the client")
         
         except Exception as e:
-            print(f'[ServerConnection.exchange_message_flags] An error occurred: {e}')
+            ErrorHandler.error_handling("exchange_message_flags", e)
 
 
     def send_message(self, message):
@@ -245,7 +238,7 @@ class ServerConnection:
             print(f"Message sent to the client: {message_json}")
         
         except Exception as e:
-            print(f'[ServerConnection.send_message] An error occurred: {e}')
+            ErrorHandler.error_handling("send_message", e)
 
 
     def stop_server(self):
@@ -253,7 +246,6 @@ class ServerConnection:
             self.server_running = False
             self.server_socket.close()
             print("Server is stopped")
-        except socket.error as e:
-            print(f"[ServerConnection.stop_server] Error closing the server socket: {e}")
+
         except Exception as e:
-            print(f"[ServerConnection.stop_server] Unexpected error: {e}")
+            ErrorHandler.error_handling("stop_server", e)
