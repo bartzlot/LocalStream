@@ -2,7 +2,6 @@ import socket
 import threading
 import json
 from os.path import join, dirname, abspath
-from files.error_handler import ErrorHandler
 from files.file_manager import FileManager
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
@@ -30,7 +29,7 @@ class ServerConnection:
             key_size=2048,
             backend=default_backend()
         )
-        self.save_keys_to_files(self.rsa_key_pair)
+        FileManager.save_keys_to_files(self.rsa_key_pair)
 
 
     def load_message_flags(self):
@@ -48,28 +47,6 @@ class ServerConnection:
         return flags_bytes
 
 
-    def save_keys_to_files(self, rsa_key_pair):
-        private_key = rsa_key_pair
-        public_key = rsa_key_pair.public_key()
-
-        # Zapis klucza prywatnego do pliku
-        with open('s_private_key.pem', 'wb') as private_key_file:
-            private_key_file.write(private_key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=serialization.NoEncryption()
-            ))
-
-        # Zapis klucza publicznego do pliku
-        with open('s_public_key.pem', 'wb') as public_key_file:
-            public_key_file.write(public_key.public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
-            ))
-
-        print("Private and public keys generated and saved.")
-
-
     def start_server(self):
         try:
             self.server_socket.bind((self.host, self.port))
@@ -84,7 +61,7 @@ class ServerConnection:
             self.server_running = False
 
         except Exception as e:
-            ErrorHandler.error_handling("start_server", e)
+            print(f"[ServerConnection.start_server] Unexpected error: {e}")
 
 
     def accept_connections(self):
@@ -100,8 +77,14 @@ class ServerConnection:
                     self.client_socket.sendall(b"Connection rejected by server..." + self.message_flags['INFO'])
                     self.client_socket.close()
 
+            except socket.timeout as e:
+                print(f"[ServerConnection.accept_connections] Socket timeout occurred: {e}")
+
+            except socket.error as e:
+                print(f"[ServerConnection.accept_connections] Socket error during connection acceptance: {e}")
+
             except Exception as e:
-                ErrorHandler.error_handling("accept_connections", e)
+                print(f"[ServerConnection.accept_connections] Unexpected error: {e}")
 
 
     def handle_client(self):
@@ -123,7 +106,7 @@ class ServerConnection:
                     self.client_socket.close()
 
         except Exception as e:
-            ErrorHandler.error_handling("handle_client", e)
+            print(f"[ServerConnection.handle_client] Unexpected error: {e}")
 
 
     def send_public_key(self):
@@ -165,14 +148,15 @@ class ServerConnection:
         file_metadata = (f"File: {file_name}\nSize: {file_size} \nChunk: {str(chunk_size)} B").encode('utf-8') + self.message_flags['INFO']
         try:
             self.client_socket.sendall(file_metadata)
-
+        except socket.error as e:
+            print(f"[ServerConnection.send_file_request] Error sending file metadata: {e}")
         except Exception as e:
-            ErrorHandler.error_handling("send_file_request", e)
+            print(f"[ServerConnection.send_file_request] Unexpected error: {e}")
 
 
-    def send_EOF(self, EOF_flag: bytes):
+    def send_EOF(self):
         try:
-            self.client_socket.sendall(EOF_flag + self.message_flags['INFO'])
+            self.client_socket.sendall(self.message_flags['END'] + self.message_flags['INFO'])
         except socket.error as e:
             print(f"[ServerConnection.send_EOF] Error sending EOF: {e}")
         except Exception as e:
@@ -191,9 +175,10 @@ class ServerConnection:
                 return True
             else:
                 return False
-
+        except socket.error as e:
+            print(f"[ServerConnection.receive_answer] Error while receiving response: {e}")
         except Exception as e:
-            ErrorHandler.error_handling("receive_answer", e)
+            print(f"[ServerConnection.receive_answer] Unexpected error: {e}")
         return False
 
 
@@ -202,7 +187,7 @@ class ServerConnection:
             raise ValueError("file_data must be a bytes-like object.")
         try:
             print('Sending EOF flag...')
-            self.send_EOF(self.message_flags['END'], self.message_flags['INFO'])
+            self.send_EOF()
             print('Sending file...')
             for i in range(0, len(file_data), chunk_size):
                 chunk = file_data[i:i + chunk_size]
@@ -226,7 +211,7 @@ class ServerConnection:
             print(f"Message flags have been sent to the client")
         
         except Exception as e:
-            ErrorHandler.error_handling("exchange_message_flags", e)
+            print(f'[ServerConnection.exchange_message_flags] An error occurred: {e}')
 
 
     def send_message(self, message):
@@ -238,7 +223,7 @@ class ServerConnection:
             print(f"Message sent to the client: {message_json}")
         
         except Exception as e:
-            ErrorHandler.error_handling("send_message", e)
+            print(f'[ServerConnection.send_message] An error occurred: {e}')
 
 
     def stop_server(self):
@@ -246,6 +231,7 @@ class ServerConnection:
             self.server_running = False
             self.server_socket.close()
             print("Server is stopped")
-
+        except socket.error as e:
+            print(f"[ServerConnection.stop_server] Error closing the server socket: {e}")
         except Exception as e:
-            ErrorHandler.error_handling("stop_server", e)
+            print(f"[ServerConnection.stop_server] Unexpected error: {e}")

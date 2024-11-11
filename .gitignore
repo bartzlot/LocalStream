@@ -1,4 +1,7 @@
 __pycache__/
+.private_keys/
+.public_keys/
+*.pem
 *.py[cod]
 *$py.class
 .vscode/

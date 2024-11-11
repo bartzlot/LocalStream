@@ -4,9 +4,40 @@ import json
 from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
+from os.path import join, dirname, abspath
 
 
 class FileManager:
+
+
+    @staticmethod
+    def save_keys_to_files(rsa_key_pair):
+
+        private_key = rsa_key_pair
+        public_key = rsa_key_pair.public_key()
+
+        parent_dir = dirname(dirname(abspath(__file__)))
+        priv_dir = join(parent_dir, '.private_keys')
+        public_dir = join(parent_dir, '.public_keys')
+
+        # Zapis klucza prywatnego do pliku
+        with open(join(priv_dir,'s_private_key.pem'), 'wb') as private_key_file:
+            private_key_file.write(private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption()
+            ))
+
+        # Zapis klucza publicznego do pliku
+        with open(join(public_dir, 's_public_key.pem'), 'wb') as public_key_file:
+            public_key_file.write(public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            ))
+
+        print("Private and public keys generated and saved.")
 
 
     @staticmethod
