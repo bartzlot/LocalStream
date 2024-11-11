@@ -19,6 +19,7 @@ def get_mac_address():
     return mac_address
 class SessionManager:
 
+
     @staticmethod
     def save_session(host, port, client_public_key, server_public_key, aes_key, file_name, client_mac_address):
         session_data = {
