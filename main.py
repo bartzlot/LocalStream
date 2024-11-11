@@ -1,3 +1,4 @@
+from os.path import join, dirname, abspath
 from connections.server import ServerConnection
 from connections.client import ClientConnection
 from files.error_handler import ErrorHandler
@@ -146,5 +147,12 @@ if __name__ == "__main__":
                 print("[Main] No client connected.")
                 server.stop_server()
 
-    FileManager.delete_file('s_public_key.pem')
-    FileManager.delete_file('s_private_key.pem')
+    parent_dir = dirname(abspath(__file__))
+    priv_dir = join(parent_dir, '.private_keys')
+    public_dir = join(parent_dir, '.public_keys')
+
+    FileManager.delete_file(join(public_dir, 'c_public_key.pem'))
+    FileManager.delete_file(join(priv_dir, 'c_private_key.pem'))
+    FileManager.delete_file(join(public_dir, 's_public_key.pem'))
+    FileManager.delete_file(join(priv_dir, 's_private_key.pem'))
+

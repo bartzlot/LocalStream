@@ -5,6 +5,8 @@ from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
+from files.file_manager import FileManager
+
 
 
 class ClientConnection:
@@ -18,7 +20,8 @@ class ClientConnection:
         self.mac_address = None
         # Generowanie kluczy RSA
         self.private_key, self.public_key = self.generate_rsa_keys()
-
+        
+        
     def connect_to_server(self):
         try:
             self.client_socket.connect((self.host, self.port))
@@ -33,30 +36,14 @@ class ClientConnection:
 
 
     def generate_rsa_keys(self):
-        private_key = rsa.generate_private_key(
+        rsa_key_pair = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
             backend=default_backend()
         )
-        public_key = private_key.public_key()
-        self.save_keys_to_files(private_key, public_key)
-        return private_key, public_key
-
-
-    def save_keys_to_files(self, private_key, public_key):
-        with open('c_private_key.pem', 'wb') as private_key_file:
-            private_key_file.write(private_key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=serialization.NoEncryption()
-            ))
-
-        with open('c_public_key.pem', 'wb') as public_key_file:
-            public_key_file.write(public_key.public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
-            ))
-        print("Private and public keys generated and saved.")
+        public_key = rsa_key_pair.public_key()
+        FileManager.save_keys_to_files(rsa_key_pair)
+        return rsa_key_pair, public_key
 
 
     def send_public_key(self):
