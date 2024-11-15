@@ -5,54 +5,25 @@ on: [push, pull_request]
 jobs:
   format:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+        
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-
-    - name: Install yapf
-      run: pip install yapf
-
-    - name: Run yapf on each file
-      run: |
-        python - <<EOF
-        import subprocess
-
-        files = [
-            './files/__init__.py',
-            './files/file_manager.py',
-            './files/error_handler.py',
-            './main.py',
-            './connections/server.py',
-            './connections/client.py',
-            './connections/new_connection.py',
-            './connections/__init__.py',
-            './connections/connection_management.py',
-            './test.py',
-            './session/session_manager.py'
-        ]
-
-        for file in files:
-            try:
-                subprocess.run(['yapf', '--in-place', '--style=google', file], check=True)
-                print(f"Formatted {file}")
-            except subprocess.CalledProcessError as e:
-                print(f"Skipping {file} due to yapf error: {e}")
-            except Exception as e:
-                print(f"Unexpected error occurred while formatting {file}: {e}")
-        EOF
-
+        
+    - name: Install black
+      run: pip install black
+        
+    - name: Format with black
+      run: black .
+        
     - name: Commit changes
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add .
-        git commit -m 'Auto-format Python code with yapf' || echo "No changes to commit"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "style: auto-format Python code with black"
+        branch: ${{ github.head_ref }}
