@@ -18,11 +18,18 @@ jobs:
     - name: Install yapf
       run: pip install yapf
 
-    - name: Find Python files
-      id: find_files
-      run: |
-        echo "::set-output name=files::$(find . -name '*.py' -print0 | xargs -0 echo)"
-
     - name: Run yapf on each file
       run: |
-        for file in ${{ steps.find_files.outputs.files }}
+        for file in ./files/__init__.py ./files/file_manager.py ./files/error_handler.py ./main.py ./connections/server.py ./connections/client.py ./connections/new_connection.py ./connections/__init__.py ./connections/connection_management.py ./test.py ./session/session_manager.py; do
+          yapf --in-place --style=google "$file" || echo "Skipping $file due to yapf error"
+        done
+
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add .
+        git commit -m 'Auto-format Python code with yapf' || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
