@@ -20,9 +20,30 @@ jobs:
 
     - name: Run yapf on each file
       run: |
-        for file in ./files/__init__.py ./files/file_manager.py ./files/error_handler.py ./main.py ./connections/server.py ./connections/client.py ./connections/new_connection.py ./connections/__init__.py ./connections/connection_management.py ./test.py ./session/session_manager.py; do
-          yapf --in-place --style=google "$file" || echo "Skipping $file due to yapf error"
-        done
+        python - <<EOF
+        import subprocess
+        import os
+
+        files = [
+            './files/__init__.py',
+            './files/file_manager.py',
+            './files/error_handler.py',
+            './main.py',
+            './connections/server.py',
+            './connections/client.py',
+            './connections/new_connection.py',
+            './connections/__init__.py',
+            './connections/connection_management.py',
+            './test.py',
+            './session/session_manager.py'
+        ]
+
+        for file in files:
+            try:
+                subprocess.run(['yapf', '--in-place', '--style=google', file], check=True)
+            except subprocess.CalledProcessError:
+                print(f"Skipping {file} due to yapf error")
+        EOF
 
     - name: Commit changes
       run: |
