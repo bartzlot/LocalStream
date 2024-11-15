@@ -103,7 +103,7 @@ class ClientConnection:
             ErrorHandler.error_handling("accept_file", e)
             self.connection_validator = False
 
-        print(f'Would you like to accept transfer of:\n [{data.split(self.message_flags['INFO'])[0].decode()}]')
+        print(f'Would you like to accept transfer of:\n {data.split(self.message_flags['INFO'])[0].decode()}')
         choice = input('yes/no: ')
         try:
             if choice.lower() in ['yes', 'y']:
