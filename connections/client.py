@@ -25,7 +25,7 @@ class ClientConnection:
     def connect_to_server(self):
         try:
             self.client_socket.connect((self.host, self.port))
-            print(f'Connecting to {self.host}:{self.port}')
+            print(f'Connecting to [{self.host}:{self.port}]')
             self.connection_validator = True
             self.receive_message_flags()
             self.receive_messages()
@@ -103,7 +103,7 @@ class ClientConnection:
             ErrorHandler.error_handling("accept_file", e)
             self.connection_validator = False
 
-        print(f'Would you like to accept transfer of:\n {data.split(self.message_flags['INFO'])[0].decode()}')
+        print(f'Would you like to accept transfer of:\n [{data.split(self.message_flags['INFO'])[0].decode()}]')
         choice = input('yes/no: ')
         try:
             if choice.lower() in ['yes', 'y']:
@@ -182,4 +182,4 @@ class ClientConnection:
             ErrorHandler.error_handling("receive_messages", e)
             self.connection_validator = False
 
-        print(f'Received from server: {data.split(self.message_flags['INFO'])[0].decode()}')
+        print(f'Received from server: [{data.split(self.message_flags['INFO'])[0].decode()}]')
