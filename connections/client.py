@@ -45,7 +45,9 @@ class ClientConnection:
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
         )
-        self.client_socket.sendall(serialized_public_key + self.message_flags["END"])
+        self.client_socket.sendall(
+            serialized_public_key + self.message_flags["END"]
+        )
         print("Public key sent to server.")
 
     def receive_public_key(self):
@@ -56,7 +58,9 @@ class ClientConnection:
                 print("No more data received.")
                 break
             if self.message_flags["END"] in chunk:
-                server_public_key_pem += chunk.split(self.message_flags["END"])[0]
+                server_public_key_pem += chunk.split(self.message_flags["END"])[
+                    0
+                ]
                 print("End of public key marker received.")
                 break
             server_public_key_pem += chunk
@@ -85,7 +89,10 @@ class ClientConnection:
     def accept_file(self):
         data = b""
         try:
-            while self.connection_validator and self.message_flags["INFO"] not in data:
+            while (
+                self.connection_validator
+                and self.message_flags["INFO"] not in data
+            ):
                 data += self.client_socket.recv(1)
                 if not data:
                     break
@@ -132,7 +139,10 @@ class ClientConnection:
     def receive_EOF_flag(self):
         data = b""
         try:
-            while self.connection_validator and self.message_flags["INFO"] not in data:
+            while (
+                self.connection_validator
+                and self.message_flags["INFO"] not in data
+            ):
                 data += self.client_socket.recv(1)
                 if not data:
                     break
@@ -166,7 +176,10 @@ class ClientConnection:
     def receive_messages(self):
         data = b""
         try:
-            while self.connection_validator and self.message_flags["INFO"] not in data:
+            while (
+                self.connection_validator
+                and self.message_flags["INFO"] not in data
+            ):
                 data += self.client_socket.recv(1)
                 if not data:
                     break

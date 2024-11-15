@@ -24,7 +24,9 @@ if __name__ == "__main__":
             # Tworzenie serwera z zapisanymi danymi sesji
             server_manager = ServerConnectionsManager()
             server = ServerConnection(
-                host=session_data["host"], port=session_data["port"], max_connections=1
+                host=session_data["host"],
+                port=session_data["port"],
+                max_connections=1,
             )
             server_manager.add_connection(server)
             server.start_server()
@@ -40,13 +42,17 @@ if __name__ == "__main__":
             server.send_public_key_restored()
 
             print("Waiting for client public key...")
-            client_public_key_received = server.receive_public_key(server.client_socket)
+            client_public_key_received = server.receive_public_key(
+                server.client_socket
+            )
 
             # Sprawdzenie, czy klucz publiczny klienta się zgadza
             if get_public_key(client_public_key_received) != get_public_key(
                 client_public_key
             ):
-                print("[Server] Client's public key does not match. Aborting session.")
+                print(
+                    "[Server] Client's public key does not match. Aborting session."
+                )
                 server.stop_server()
                 exit()
 
@@ -78,7 +84,9 @@ if __name__ == "__main__":
 
         # Jeśli użytkownik nie wybiera przywrócenia sesji, rozpoczynamy nową
         server_manager = ServerConnectionsManager()
-        server = ServerConnection(host="127.0.0.1", port=1234, max_connections=1)
+        server = ServerConnection(
+            host="127.0.0.1", port=1234, max_connections=1
+        )
         server_manager.add_connection(server)
         server.start_server()
         server.mac_address = get_mac_address()
@@ -111,7 +119,9 @@ if __name__ == "__main__":
                     server.send_public_key()
 
                     # Odbiór klucza publicznego klienta
-                    client_public_key = server.receive_public_key(server.client_socket)
+                    client_public_key = server.receive_public_key(
+                        server.client_socket
+                    )
 
                     # Szyfrowanie klucza AES kluczem publicznym klienta
                     encrypted_aes_key = server.encrypt_with_public_key(

@@ -128,7 +128,9 @@ class SessionManager:
             }
 
         except Exception as e:
-            print(f"[SessionManager.load_session] Błąd przy wczytywaniu sesji: {e}")
+            print(
+                f"[SessionManager.load_session] Błąd przy wczytywaniu sesji: {e}"
+            )
             return None
 
     @staticmethod
@@ -163,5 +165,7 @@ class SessionManager:
             }
 
         except Exception as e:
-            print(f"[SessionManager.load_session] Błąd przy wczytywaniu sesji: {e}")
+            print(
+                f"[SessionManager.load_session] Błąd przy wczytywaniu sesji: {e}"
+            )
             return None

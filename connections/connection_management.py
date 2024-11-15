@@ -51,7 +51,11 @@ class ServerConnectionsManager:
                 cmd = "netstat -nr | grep UHLWI | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}' | awk '{print $1 \"-\" $2}'"
 
             result = subprocess.run(
-                cmd, shell=True, capture_output=True, text=True, encoding="utf-8"
+                cmd,
+                shell=True,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
             )
             possible_conns = []
 
@@ -61,7 +65,9 @@ class ServerConnectionsManager:
 
                 if len(conn) == 2:
 
-                    possible_conns.append({"host_ip": conn[0], "host_mac": conn[1]})
+                    possible_conns.append(
+                        {"host_ip": conn[0], "host_mac": conn[1]}
+                    )
 
             return possible_conns
 
@@ -72,5 +78,7 @@ class ServerConnectionsManager:
 
         except Exception as e:
 
-            print(f"An error has occured during search for possible connections: [{e}]")
+            print(
+                f"An error has occured during search for possible connections: [{e}]"
+            )
             return []

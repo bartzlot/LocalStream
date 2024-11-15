@@ -21,7 +21,9 @@ class ServerConnection:
         self.current_connections = 0
         self.lock = threading.Lock()
         self.server_running = False
-        self.message_flags = self.convert_message_flags(self.load_message_flags())
+        self.message_flags = self.convert_message_flags(
+            self.load_message_flags()
+        )
         print(self.message_flags["INFO"])
         self.mac_address = None
 
@@ -43,7 +45,8 @@ class ServerConnection:
     def convert_message_flags(self, message_flags: dict):
 
         flags_bytes = {
-            key: value.encode("utf-8") for key, value in message_flags["flags"].items()
+            key: value.encode("utf-8")
+            for key, value in message_flags["flags"].items()
         }
 
         return flags_bytes
@@ -67,9 +70,14 @@ class ServerConnection:
             print(f"[ServerConnection.start_server] Unexpected error: {e}")
 
     def accept_connections(self):
-        while self.server_running and self.current_connections < self.max_connections:
+        while (
+            self.server_running
+            and self.current_connections < self.max_connections
+        ):
             try:
-                self.client_socket, self.client_address = self.server_socket.accept()
+                self.client_socket, self.client_address = (
+                    self.server_socket.accept()
+                )
                 self.exchange_message_flags()
                 choice = input(
                     f"Would you like to accept connection from {self.client_address} - yes/no: "
@@ -79,7 +87,8 @@ class ServerConnection:
                     self.handle_client()
                 else:
                     self.client_socket.sendall(
-                        b"Connection rejected by server..." + self.message_flags["INFO"]
+                        b"Connection rejected by server..."
+                        + self.message_flags["INFO"]
                     )
                     self.client_socket.close()
 
@@ -94,7 +103,9 @@ class ServerConnection:
                 )
 
             except Exception as e:
-                print(f"[ServerConnection.accept_connections] Unexpected error: {e}")
+                print(
+                    f"[ServerConnection.accept_connections] Unexpected error: {e}"
+                )
 
     def handle_client(self):
         try:
@@ -103,7 +114,8 @@ class ServerConnection:
                 print(f"Connection with {self.client_address} accepted!")
                 try:
                     self.client_socket.sendall(
-                        b"Connection accepted by server!" + self.message_flags["INFO"]
+                        b"Connection accepted by server!"
+                        + self.message_flags["INFO"]
                     )
                 except socket.error as e:
                     print(
@@ -115,7 +127,8 @@ class ServerConnection:
                 )
                 try:
                     self.client_socket.sendall(
-                        b"Connection rejected by server!" + self.message_flags["INFO"]
+                        b"Connection rejected by server!"
+                        + self.message_flags["INFO"]
                     )
                 except socket.error as e:
                     print(
@@ -168,7 +181,9 @@ class ServerConnection:
         )
         return encrypted_key
 
-    def send_file_request(self, file_name: str, file_size: str, chunk_size: int):
+    def send_file_request(
+        self, file_name: str, file_size: str, chunk_size: int
+    ):
         file_metadata = (
             f"File: {file_name}\nSize: {file_size} \nChunk: {str(chunk_size)} B"
         ).encode("utf-8") + self.message_flags["INFO"]
@@ -195,7 +210,8 @@ class ServerConnection:
         data = b""
         try:
             while self.server_running and not (
-                self.message_flags["ACK"] in data or self.message_flags["RST"] in data
+                self.message_flags["ACK"] in data
+                or self.message_flags["RST"] in data
             ):
                 data += self.client_socket.recv(1)
                 if not data:
@@ -242,11 +258,15 @@ class ServerConnection:
         try:
 
             message_json = json.dumps(self.load_message_flags())
-            self.client_socket.sendall(message_json.encode("utf-8") + b"/FLAGS/")
+            self.client_socket.sendall(
+                message_json.encode("utf-8") + b"/FLAGS/"
+            )
             print(f"Message flags have been sent to the client")
 
         except Exception as e:
-            print(f"[ServerConnection.exchange_message_flags] An error occurred: {e}")
+            print(
+                f"[ServerConnection.exchange_message_flags] An error occurred: {e}"
+            )
 
     def send_message(self, message):
 

@@ -22,7 +22,9 @@ class FileManager:
         public_dir = join(parent_dir, ".public_keys")
 
         # Zapis klucza prywatnego do pliku
-        with open(join(priv_dir, "s_private_key.pem"), "wb") as private_key_file:
+        with open(
+            join(priv_dir, "s_private_key.pem"), "wb"
+        ) as private_key_file:
             private_key_file.write(
                 private_key.private_bytes(
                     encoding=serialization.Encoding.PEM,
@@ -32,7 +34,9 @@ class FileManager:
             )
 
         # Zapis klucza publicznego do pliku
-        with open(join(public_dir, "s_public_key.pem"), "wb") as public_key_file:
+        with open(
+            join(public_dir, "s_public_key.pem"), "wb"
+        ) as public_key_file:
             public_key_file.write(
                 public_key.public_bytes(
                     encoding=serialization.Encoding.PEM,
@@ -58,7 +62,9 @@ class FileManager:
     @staticmethod
     def encrypt_file(file_path, key):
         iv = os.urandom(16)  # 16 bytes IV
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        cipher = Cipher(
+            algorithms.AES(key), modes.CBC(iv), backend=default_backend()
+        )
         encryptor = cipher.encryptor()
 
         try:
@@ -94,7 +100,9 @@ class FileManager:
                 algorithms.AES(key), modes.CBC(iv), backend=default_backend()
             )
             decryptor = cipher.decryptor()
-            plaintext_padded = decryptor.update(ciphertext) + decryptor.finalize()
+            plaintext_padded = (
+                decryptor.update(ciphertext) + decryptor.finalize()
+            )
 
             # Usunięcie paddingu
             padding_length = plaintext_padded[-1]

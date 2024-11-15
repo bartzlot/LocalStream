@@ -59,7 +59,9 @@ if __name__ == "__main__":
                 print("File received and decrypted successfully.")
 
             except IOError as e:
-                print(f"[Client] I/O error during file transfer or decryption: {e}")
+                print(
+                    f"[Client] I/O error during file transfer or decryption: {e}"
+                )
 
             except Exception as e:
                 print(f"[Client] An unexpected error occurred: {e}")
