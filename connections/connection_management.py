@@ -18,7 +18,7 @@ class ServerConnectionsManager:
         result = ''
 
         for conn in self.connections:
-            result += f'{conn['ConnObj'].host}:{str(conn['ConnObj'].port)} - active: {conn['Status']}\n'
+            result += f'[{conn['ConnObj'].host}]:[{str(conn['ConnObj'].port)}] - active: [{conn['Status']}]\n'
 
         return result
 
@@ -74,7 +74,7 @@ class ServerConnectionsManager:
         
         except Exception as e:
 
-            print(f'An error has occured during search for possible connections: {e}')
+            print(f'An error has occured during search for possible connections: [{e}]')
             return []
 
 
