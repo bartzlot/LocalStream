@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref || github.ref_name }}
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - uses: actions/setup-python@v3
@@ -24,10 +26,10 @@ jobs:
     - name: Format with black
       run: black .
         
-    - name: Commit changes
+    - name: Commit and push changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add .
         git commit -m "style: format Python code with black" || exit 0
-        git push
+        git push origin HEAD:${{ github.head_ref || github.ref_name }}
