@@ -16,8 +16,7 @@ if __name__ == "__main__":
 
             # Tworzenie klienta z zapisanymi danymi sesji
             client = ClientConnection(
-                host=session_data["host"],
-                port=session_data["port"]
+                host=session_data["host"], port=session_data["port"]
             )
 
             # Podłączanie do serwera
@@ -37,18 +36,22 @@ if __name__ == "__main__":
                 client.send_public_key()
 
                 # Sprawdzenie, czy klucz publiczny serwera jest zgodny z zapisanym w sesji
-                if get_public_key(server_public_key_received) != get_public_key(server_public_key):
-                    print("[Client] Server's public key does not match. Aborting session.")
+                if get_public_key(server_public_key_received) != get_public_key(
+                    server_public_key
+                ):
+                    print(
+                        "[Client] Server's public key does not match. Aborting session."
+                    )
 
                     exit()
 
                 # Sprawdzenie, czy klient akceptuje żądanie pliku
                 if client.accept_file():
                     file_data = client.receive_file(1024)
-                    final_file_path = 'output2.txt'
+                    final_file_path = "output2.txt"
 
                     # Zapisanie pliku
-                    FileManager.save_file(final_file_path, file_data, b'/END/')
+                    FileManager.save_file(final_file_path, file_data, b"/END/")
 
                     # Odszyfrowanie zapisanego pliku za pomocą klucza AES
                     FileManager.decrypt_file(final_file_path, aes_key)
@@ -62,7 +65,7 @@ if __name__ == "__main__":
                 print(f"[Client] An unexpected error occurred: {e}")
     else:
         # Inicjalizacja nowej sesji
-        client = ClientConnection(host='127.0.0.1', port=1234)
+        client = ClientConnection(host="127.0.0.1", port=1234)
         client.connect_to_server()
         client.mac_address = get_mac_address()
 
@@ -72,7 +75,9 @@ if __name__ == "__main__":
             client.send_public_key()
 
             print("Waiting for encrypted AES key...")
-            encrypted_aes_key = client.client_socket.recv(256)  # Odbiór zaszyfrowanego klucza AES
+            encrypted_aes_key = client.client_socket.recv(
+                256
+            )  # Odbiór zaszyfrowanego klucza AES
             print(f"Encrypted AES key received: {encrypted_aes_key}")
 
             # Odszyfrowanie klucza AES za pomocą prywatnego klucza klienta
@@ -82,16 +87,18 @@ if __name__ == "__main__":
             # Sprawdzenie, czy klient akceptuje żądanie pliku
             if client.accept_file():
                 file_data = client.receive_file(1024)
-                final_file_path = 'test_received.txt'
+                final_file_path = "test_received.txt"
 
                 # Zapisanie pliku
-                FileManager.save_file(final_file_path, file_data,b'/END/')
+                FileManager.save_file(final_file_path, file_data, b"/END/")
 
                 # Odszyfrowanie zapisanego pliku za pomocą klucza AES
                 FileManager.decrypt_file(final_file_path, aes_key)
 
                 # Zapisanie sesji
-                save_session_choice = input("Do you want to save this session? (yes/no): ")
+                save_session_choice = input(
+                    "Do you want to save this session? (yes/no): "
+                )
                 if save_session_choice.lower() in ["yes", "y"]:
                     # Zapisanie sesji
                     SessionManager.save_session(
@@ -101,7 +108,7 @@ if __name__ == "__main__":
                         server_public_key=server_public_key,
                         aes_key=aes_key,
                         file_name=final_file_path,
-                        client_mac_address=get_mac_address()
+                        client_mac_address=get_mac_address(),
                     )
                 else:
                     print("Session not saved.")
@@ -111,12 +118,14 @@ if __name__ == "__main__":
                 exit()
 
         except IOError as e:
-            print(f"[Client] I/O error occurred during file transfer or decryption: {e}")
+            print(
+                f"[Client] I/O error occurred during file transfer or decryption: {e}"
+            )
             exit()
 
         except Exception as e:
             print(f"[Client] An unexpected error occurred: {e}")
             exit()
 
-    FileManager.delete_file('c_public_key.pem')
-    FileManager.delete_file('c_private_key.pem')
+    FileManager.delete_file("c_public_key.pem")
+    FileManager.delete_file("c_private_key.pem")
