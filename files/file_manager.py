@@ -5,7 +5,7 @@ from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from os.path import join, dirname, abspath
+from os.path import join, dirname, abspath, exists
 
 
 class FileManager:
@@ -15,6 +15,9 @@ class FileManager:
 
         parent_dir = dirname(dirname(abspath(__file__)))
         session_dir = join(parent_dir, '.sessions')
+
+        if not exists(session_dir):
+            os.makedirs(session_dir)
 
         try:
 
@@ -51,6 +54,12 @@ class FileManager:
         parent_dir = dirname(dirname(abspath(__file__)))
         priv_dir = join(parent_dir, '.private_keys')
         public_dir = join(parent_dir, '.public_keys')
+        
+        if not exists(priv_dir):
+            os.makedirs(priv_dir)
+
+        if not exists(public_dir):
+            os.makedirs(public_dir)
 
         # Zapis klucza prywatnego do pliku
         with open(join(priv_dir,'s_private_key.pem'), 'wb') as private_key_file:
