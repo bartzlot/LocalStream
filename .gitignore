@@ -1,6 +1,7 @@
 __pycache__/
-.private_keys/
-.public_keys/
+.private_keys/*
+.public_keys/*
+.sessions/*
 *.pem
 *.py[cod]
 *$py.class

@@ -1,7 +1,5 @@
-import json
-import os
+from files.file_manager import FileManager
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 import uuid
 
 def get_public_key(key):
@@ -12,11 +10,11 @@ def get_public_key(key):
     return public_key_pem
 
 
-
 def get_mac_address():
     mac = uuid.getnode()
     mac_address = ':'.join([f'{(mac >> i) & 0xff:02x}' for i in range(0, 8 * 6, 8)][::-1])
     return mac_address
+
 class SessionManager:
 
 
@@ -37,17 +35,11 @@ class SessionManager:
             "aes_key": aes_key.hex(),  # Klucz AES zapisany w formie hex
             "file_name": file_name
         }
-
         # Zapis do pliku JSON
-        session_file_path = 'session.json'
-        try:
-            with open(session_file_path, 'w') as session_file:
-                json.dump(session_data, session_file, indent=4)
-            print("Session saved successfully.")
-        except Exception as e:
-            print(f"[SessionManager.save_session] Błąd przy zapisie sesji: {e}")
+        FileManager.save_session_file(session_data, 'session.json')
 
     def save_session_server(host, port, client_public_key, server_public_key, aes_key, file_name, server_mac_address):
+
         session_data = {
             "host": host,
             "port": port,
@@ -63,29 +55,14 @@ class SessionManager:
             "aes_key": aes_key.hex(),  # Klucz AES zapisany w formie hex
             "file_name": file_name
         }
-
-
         # Zapis do pliku JSON
-        session_file_path = 'session_server.json'
-        try:
-            with open(session_file_path, 'w') as session_file:
-                json.dump(session_data, session_file, indent=4)
-            print("Session saved successfully.")
-        except Exception as e:
-            print(f"[SessionManager.save_session] Błąd przy zapisie sesji: {e}")
+        FileManager.save_session_file(session_data, 'session_server.json')
 
     @staticmethod
     def load_session():
-        session_file_path = 'session.json'
-
-        if not os.path.exists(session_file_path):
-            print("[SessionManager.load_session] Brak pliku z zapisaną sesją.")
-            return None
 
         try:
-            with open(session_file_path, 'r') as session_file:
-                session_data = json.load(session_file)
-
+            session_data = FileManager.load_session_file('session.json')
             # Przywracanie danych sesji z pliku
             client_public_key = serialization.load_pem_public_key(
                 session_data["client_public_key"].encode('utf-8')
@@ -111,16 +88,10 @@ class SessionManager:
 
     @staticmethod
     def load_session_server():
-        session_file_path = 'session_server.json'
-
-        if not os.path.exists(session_file_path):
-            print("[SessionManager.load_session] Brak pliku z zapisaną sesją.")
-            return None
 
         try:
-            with open(session_file_path, 'r') as session_file:
-                session_data = json.load(session_file)
 
+            session_data = FileManager.load_session_file('session_server.json')
             # Przywracanie danych sesji z pliku
             client_public_key = serialization.load_pem_public_key(
                 session_data["client_public_key"].encode('utf-8')

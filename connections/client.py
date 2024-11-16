@@ -1,12 +1,10 @@
 import socket
-import threading
 import json
 from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
 from files.file_manager import FileManager
-
 
 
 class ClientConnection:

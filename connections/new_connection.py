@@ -1,6 +1,5 @@
 import ipaddress
 
-
 def get_connection_info():
 
     run_menu = True
