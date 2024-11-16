@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
             # Podłączanie do serwera
             client.connect_to_server()
-
+ 
             try:
                 # Ustawianie kluczy z sesji
                 client.public_key = session_data["client_public_key"]
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                     # Odszyfrowanie zapisanego pliku za pomocą klucza AES
                     FileManager.decrypt_file(final_file_path, aes_key)
 
-                print("File received and decrypted successfully.")
+                    print("File received and decrypted successfully.")
 
             except IOError as e:
                 print(f"[Client] I/O error during file transfer or decryption: {e}")
@@ -117,6 +117,3 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"[Client] An unexpected error occurred: {e}")
             exit()
-
-    FileManager.delete_file('c_public_key.pem')
-    FileManager.delete_file('c_private_key.pem')

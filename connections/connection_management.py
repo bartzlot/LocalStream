@@ -1,6 +1,5 @@
 import subprocess
 import platform
-import os
 
 #Should be used to manage clients connected to the server
 class ServerConnectionsManager:

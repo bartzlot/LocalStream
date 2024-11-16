@@ -4,13 +4,43 @@ import json
 from files.error_handler import ErrorHandler
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives import serialization
 from os.path import join, dirname, abspath
 
 
 class FileManager:
 
+    @staticmethod
+    def save_session_file(session_data, file_name):
+
+        parent_dir = dirname(dirname(abspath(__file__)))
+        session_dir = join(parent_dir, '.sessions')
+
+        try:
+
+            with open(join(session_dir, file_name), 'w') as session_file:
+                json.dump(session_data, session_file, indent=4)
+            print("Session saved successfully.")
+
+        except Exception as e:
+            print(f"[Filemanager.save_session] Błąd przy zapisie sesji: {e}")
+
+    @staticmethod
+    def load_session_file(file_name):
+            
+            parent_dir = dirname(dirname(abspath(__file__)))
+            session_dir = join(parent_dir, '.sessions')
+
+            try:
+
+                with open(join(session_dir, file_name)) as session_file:
+                    session_data = json.load(session_file)
+                
+                return session_data
+            
+            except Exception as e:
+                print(f"[FileManager.load_session_file] An error has occured: {e}")
+                return None
 
     @staticmethod
     def save_keys_to_files(rsa_key_pair):
