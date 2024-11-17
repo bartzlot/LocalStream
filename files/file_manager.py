@@ -94,6 +94,7 @@ class FileManager:
 
     @staticmethod
     def encrypt_file(file_path, key):
+        
         iv = os.urandom(16)  # 16 bytes IV
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         encryptor = cipher.encryptor()

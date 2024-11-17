@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 print(f"[Client] An unexpected error occurred: {e}")
     else:
         # Inicjalizacja nowej sesji
-        client = ClientConnection(host='127.0.0.1', port=1234)
+        client = ClientConnection(host='127.0.0.1', port=1233)
         client.connect_to_server()
         client.mac_address = get_mac_address()
 
