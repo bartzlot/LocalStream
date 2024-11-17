@@ -1,9 +1,10 @@
 import fire
-from connections.connection_management import ServerConnectionsManager
+from connections.connection_management import ServerConnectionsManager, ClientConnectionsManager
 
 class CLI:
     def __init__(self):
         self.server_manager = ServerConnectionsManager()
+        self.client_manager = ClientConnectionsManager()
         self.running = True
 
     def add_connection(self, host, port, max_connections):
@@ -20,6 +21,10 @@ class CLI:
 
     def status(self):
         return str(self.server_manager)
+    
+    ######## CLIENT-SIDE-COMMANDS ########
+    def connect(self, host, port):
+        return self.client_manager.connect_to_server(host, port)
     
     def exit(self):
         self.running = False

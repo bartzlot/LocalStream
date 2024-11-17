@@ -16,7 +16,7 @@ class ClientConnection:
         self.connection_validator = False
         self.message_flags = None
         self.mac_address = None
-        # Generowanie kluczy RSA
+        # Generating RSA key pair
         self.private_key, self.public_key = self.generate_rsa_keys()
         
         

@@ -3,6 +3,7 @@ import platform
 import os
 from typing import Dict
 from connections.server import ServerConnection
+from connections.client import ClientConnection
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 from files.file_manager import FileManager
@@ -147,6 +148,24 @@ class ServerConnectionsManager:
         result += "-" * 50 + "\n"
         print(result)
 
+
+class ClientConnectionsManager:
+
+    def __init__(self):
+        
+        self.client_connection = None
+        self.executor = ThreadPoolExecutor(max_workers=10)
+
+    def connect_to_server(self, host, port):
+
+        try:
+
+            self.client_connection = ClientConnection(host, port)
+            self.client_connection.connect_to_server()
+
+        except Exception as e:
+            print(f"Error connecting to the server: {e}")
+            self.client_connection.client_socket.close()
 
     
 
