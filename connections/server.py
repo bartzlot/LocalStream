@@ -48,7 +48,6 @@ class ServerConnection:
         
         return flags_bytes
 
-
     def start_server(self):
         try:
             self.server_socket.bind((self.host, self.port))
