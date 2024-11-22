@@ -148,6 +148,6 @@ We welcome contributions to improve LocalStream. Please fork the repository, cre
 ---
 
 ## License
-LocalStream is licensed under the MIT License. See `LICENSE` for details.
+LocalStream is licensed under the MIT License. See `LICENSE.md` for details.
 
 ---
