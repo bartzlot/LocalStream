@@ -7,34 +7,122 @@ LocalStream is a Python-based application designed for secure and efficient file
 ---
 
 ## **Usage**
-### Main Commands
-#### **Server (`main.py`)**:
-Launches the server-side application to listen for incoming connections and receive encrypted files. This is typically run on the machine designated to collect files from clients.
+This project provides a command-line interface (CLI) to manage both server and client-side file operations. The commands are handled via the `fire` library, which provides a simple and flexible way to interact with the application from the command line.
+
+### Start the CLI:
 ```bash
-python main.py
+   python localstream.py
 ```
+The `CLI` class defines the command-line interface commands that can be executed by the user.
 
-#### **Client (`test.py`)**:
-Initiates a connection to the server and securely sends files. This is used by the client-side user to transmit files over the network.
-```bash
-python test.py <server_ip> <file_path>
-```
+#### Server-Side Commands
 
-#### Arguments:
-- `<server_ip>`: The IP address of the server machine to which the file will be sent. This must match the IP where the server is running.
-- `<file_path>`: The full path to the file on the local system that you want to transmit.
+1. **Add a Connection**
+    - **Command**: `add_connection`
+    - **Arguments**:
+        - `port` (int) - The port number the server will listen to.
+        - `max_connections` (int, optional, default: 1) - Maximum number of connections allowed.
+    - **Example**:
+      ```bash
+      add_connection 8080 10
+      ```
+    - **Description**: Adds a new connection on the server to allow clients to connect.
 
-### Example Workflow:
-1. Start the server:
-   ```bash
-   python main.py
-   ```
-   The server will display its IP address, ready to accept connections.
-   
-2. On the client-side, send a file:
-   ```bash
-   python test.py 192.168.1.10 /path/to/file.txt
-   ```
+
+2. **Add a Local Connection**
+    - **Command**: `add_local_connection`
+    - **Arguments**:
+        - `host` (str) - The IP address of the host.
+        - `port` (int) - The port number.
+        - `max_connections` (int) - Maximum number of connections allowed.
+    - **Example**:
+      ```bash
+      add_local_connection 192.168.1.1 8080 10
+      ```
+    - **Description**: Adds a local connection to the server with the provided host and port.
+
+
+3. **Delete a Connection**
+    - **Command**: `del_connection`
+    - **Arguments**:
+        - `port` (int) - The port number of the connection to delete.
+    - **Example**:
+      ```bash
+      del_connection 8080
+      ```
+    - **Description**: Removes an existing connection from the server based on the provided port.
+
+
+4. **Send a File**
+    - **Command**: `send_file`
+    - **Arguments**:
+        - `port` (int) - The port of the connection.
+        - `file_path` (str) - The path of the file to send.
+        - `chunk_size` (int, optional, default: 1024) - Size of chunks for file transfer.
+    - **Example**:
+      ```bash
+      send_file 8080 /path/to/file.txt 2048
+      ```
+    - **Description**: Sends a file to the connected client.
+
+
+5. **List Possible Connections**
+    - **Command**: `possible_connections`
+    - **Arguments**: None
+    - **Example**:
+      ```bash
+      possible_connections
+      ```
+    - **Description**: Lists all the available possible connections on the server.
+
+
+6. **Get Server Status**
+    - **Command**: `status`
+    - **Arguments**: None
+    - **Example**:
+      ```bash
+      status
+      ```
+    - **Description**: Displays the current status of the server, including active connections.
+
+---
+
+### Client-Side Commands
+
+1. **Connect to Server**
+    - **Command**: `connect`
+    - **Arguments**:
+        - `host` (str) - The IP address of the server.
+        - `port` (int) - The port number of the server.
+    - **Example**:
+      ```bash
+      connect 192.168.1.1 8080
+      ```
+    - **Description**: Connects the client to the server at the specified host and port.
+
+
+2. **Receive a File**
+    - **Command**: `receive_file`
+    - **Arguments**:
+        - `file_save_path` (str) - The path where the file will be saved on the client-side.
+    - **Example**:
+      ```bash
+      receive_file /path/to/save/file.txt
+      ```
+    - **Description**: Receives a file from the server and saves it to the specified path.
+
+
+3. **Exit CLI**
+    - **Command**: `exit`
+    - **Arguments**: None
+    - **Example**:
+      ```bash
+      exit
+      ```
+    - **Description**: Exits the CLI application.
+
+---
+
 
 ### Additional Notes:
 - Ensure that both server and client devices are on the same network.
@@ -53,11 +141,13 @@ python test.py <server_ip> <file_path>
 - `base64`: Used for encoding and decoding data.
 - `uuid`: Generates unique identifiers for identifying devices and sessions.
 
-### Third-party Libraries:
-- **`cryptography`**: Core library used for encryption and decryption.
-  - **AES (Advanced Encryption Standard)**: Ensures secure file content transmission.
-  - **RSA (Rivest-Shamir-Adleman)**: Used for public-key exchange.
-- To install dependencies, run:
+## Third-Party Libraries
+
+- **`cryptography`**: For encryption and key management.
+- **`fire`**: For building the command-line interface (CLI).
+- **`netifaces`**: For interacting with network interfaces and retrieving MAC/IP addresses.
+
+ To install dependencies, run:
   ```bash
   pip install -r requirements.txt
   ```
@@ -127,23 +217,6 @@ Manages session-level operations:
 
 5. **Customizable**:
    - Easily adaptable to include additional encryption methods or file transfer protocols.
-
----
-
-## **Future Enhancements**
-1. Add support for file compression during transmission.
-2. Integrate a GUI for better user experience.
-3. Implement a notification system for transfer completion.
-
----
-
-## **Contributing**
-We welcome contributions to improve LocalStream. Please fork the repository, create a feature branch, and submit a pull request.
-
-### **Development Guidelines**:
-1. Ensure the code is PEP 8 compliant.
-2. Write unit tests for new features.
-3. Document new modules and functions clearly.
 
 ---
 
