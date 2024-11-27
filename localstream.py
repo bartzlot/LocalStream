@@ -7,7 +7,12 @@ class CLI:
         self.client_manager = ClientConnectionsManager()
         self.running = True
 
-    def add_connection(self, host, port, max_connections):
+    def add_connection(self, port, max_connections=1):
+
+        host = ServerConnectionsManager.get_private_ip()
+        return self.server_manager.add_connection(host, port, max_connections)
+    
+    def add_local_connection(self, host, port, max_connections):
         return self.server_manager.add_connection(host, port, max_connections)
 
     def del_connection(self, port):
@@ -23,8 +28,11 @@ class CLI:
         return str(self.server_manager)
     
     ######## CLIENT-SIDE-COMMANDS ########
-    def connect(self, host, port):
+    def connect(self, host: str, port: int):
         return self.client_manager.connect_to_server(host, port)
+    
+    def receive_file(self, file_save_path: str):
+        return self.client_manager.receive_file(file_save_path)
     
     def exit(self):
         self.running = False
