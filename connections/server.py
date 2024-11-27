@@ -20,7 +20,6 @@ class ServerConnection:
         self.lock = threading.Lock()
         self.server_running = False
         self.message_flags = self.convert_message_flags(self.load_message_flags())
-        print(self.message_flags['INFO'])
         self.mac_address = None
 
         # Generowanie pary kluczy RSA
@@ -52,8 +51,6 @@ class ServerConnection:
         try:
             self.server_socket.bind((self.host, self.port))
             self.server_socket.listen(self.max_connections)
-            print(f'Server listening on {self.host}:{self.port}...')
-
             self.server_running = True
             self.accept_connections()
 
@@ -116,7 +113,6 @@ class ServerConnection:
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
         self.client_socket.sendall(public_key_pem + self.message_flags['END'])
-        print("Public key sent to client.")
 
     def send_public_key_restored(self):
         # Używamy wczytanego klucza publicznego z pliku
@@ -218,7 +214,7 @@ class ServerConnection:
 
             message_json = json.dumps(self.load_message_flags())
             self.client_socket.sendall(message_json.encode('utf-8') + b"/FLAGS/")
-            print(f"Message flags have been sent to the client")
+            print(f"\nMessage flags have been sent to the client")
         
         except Exception as e:
             print(f'[ServerConnection.exchange_message_flags] An error occurred: {e}')

@@ -16,7 +16,7 @@ class ClientConnection:
         self.connection_validator = False
         self.message_flags = None
         self.mac_address = None
-        # Generowanie kluczy RSA
+        # Generating RSA key pair
         self.private_key, self.public_key = self.generate_rsa_keys()
         
         
@@ -101,7 +101,7 @@ class ClientConnection:
             ErrorHandler.error_handling("accept_file", e)
             self.connection_validator = False
 
-        print(f'Would you like to accept transfer of:\n {data.split(self.message_flags['INFO'])[0].decode()}')
+        print(f'Would you like to accept transfer of:\n {data.split(self.message_flags['END'])[0].decode()}')
         choice = input('yes/no: ')
         try:
             if choice.lower() in ['yes', 'y']:

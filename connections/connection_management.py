@@ -1,11 +1,13 @@
 import subprocess
 import platform
 import os
+import netifaces
 from typing import Dict
 from connections.server import ServerConnection
+from connections.client import ClientConnection
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
-from files.file_manager import FileManager
+from files.file_manager import FileManager, ErrorHandler
 
 @dataclass
 class Connection:
@@ -14,6 +16,21 @@ class Connection:
 
 #Should be used to manage clients connected to the server
 class ServerConnectionsManager:
+
+    @staticmethod
+    def get_private_ip():
+
+        interfaces = netifaces.interfaces()
+        for interface in interfaces:
+            addresses = netifaces.ifaddresses(interface)
+            if netifaces.AF_INET in addresses:
+                for addr_info in addresses[netifaces.AF_INET]:
+                    ip_address = addr_info['addr']
+                    if ip_address != '127.0.0.1':
+                        return ip_address
+                    
+        return None
+
 
     def __init__(self):
 
@@ -70,39 +87,41 @@ class ServerConnectionsManager:
     def send_file(self, port: int, file_path: str, chunk_size: int = 1024):
 
         if port in self.connections:
-            conn = self.connections[port]
-
-            try:
-
-                # Key exchange
-                conn.server.send_public_key()
-                client_public_key = conn.server.receive_public_key(conn.server.client_socket)
-
-                # Generate AES key
-                aes_key = os.urandom(32)  # 256-bit AES key
-                encrypted_aes_key = conn.server.encrypt_with_public_key(client_public_key, aes_key)
-
-                # Send encrypted AES key
-                conn.server.client_socket.sendall(encrypted_aes_key + conn.server.message_flags['END'])
-
-                # Encrypt file
-                encrypted_file_path = FileManager.encrypt_file(file_path, aes_key)
-
-                file_data = FileManager.read_file(encrypted_file_path, chunk_size, conn.server.message_flags['END'])
-                conn.server.send_file_request(file_data[1], file_data[1], chunk_size)
-
-                if conn.server.receive_answer():
-                    conn.server.send_file(file_data[0], chunk_size)
-
-                else:
-                    print(f"Client rejected the file transfer request for {file_data[1]}.")
-
-            except FileNotFoundError:
-                print(f"File {file_path} not found.")
-            except Exception as e:
-                print(f"Error sending file: {e}")
+            self.executor.submit(self._send_file_thread, port, file_path, chunk_size)
         else:
             print(f"No active connection on port {port}")
+
+    def _send_file_thread(self, port: int, file_path: str, chunk_size: int):
+        conn = self.connections[port]
+        try:
+            # Key exchange
+            conn.server.send_public_key()
+            print("Public key sent to client.")
+            client_public_key = conn.server.receive_public_key(conn.server.client_socket)
+            print("Client public key received.")
+            # Generate AES key
+            aes_key = os.urandom(32)  # 256-bit AES key
+            encrypted_aes_key = conn.server.encrypt_with_public_key(client_public_key, aes_key)
+
+            # Send encrypted AES key
+            conn.server.client_socket.sendall(encrypted_aes_key + conn.server.message_flags['END'])
+
+            # Encrypt file
+            encrypted_file_path = FileManager.encrypt_file(file_path, aes_key)
+
+            file_data = FileManager.read_file(encrypted_file_path, chunk_size, conn.server.message_flags['END'])
+            conn.server.send_file_request(file_data[1], file_data[1], chunk_size)
+
+            if conn.server.receive_answer():
+                conn.server.send_file(file_data[0], chunk_size)
+                FileManager.delete_file(encrypted_file_path)
+            else:
+                print(f"Client rejected the file transfer request for {file_data[1]}.")
+
+        except FileNotFoundError:
+            print(f"File {file_path} not found.")
+        except Exception as e:
+            print(f"Error sending file: {e}")
 
     @staticmethod
     def possible_connections():
@@ -147,6 +166,56 @@ class ServerConnectionsManager:
         result += "-" * 50 + "\n"
         print(result)
 
+
+class ClientConnectionsManager:
+
+    def __init__(self):
+        
+        self.client_connection = None
+        self.executor = ThreadPoolExecutor(max_workers=10)
+
+    def connect_to_server(self, host, port):
+
+        try:
+
+            self.client_connection = ClientConnection(host, port)
+            self.client_connection.connect_to_server()
+
+        except Exception as e:
+            print(f"Error connecting to the server: {e}")
+            self.client_connection.client_socket.close()
+
+    def receive_file(self, save_path: str, chunk_size=1024):
+            
+            try:
+                # Key exchange
+                print("Waiting for server public key...")
+                server_public_key = self.client_connection.receive_public_key()
+                self.client_connection.send_public_key()
+
+                print("Waiting for encrypted AES key...")
+                encrypted_aes_key = self.client_connection.client_socket.recv(256) 
+                print('Encrypted AES key received...')
+
+                aes_key = self.client_connection.decrypt_with_private_key(encrypted_aes_key)
+                print("AES key decrypted.")
+
+                # Accept file transfer
+                if self.client_connection.accept_file():
+                    file_data = self.client_connection.receive_file(chunk_size)
+
+                    if file_data:
+                        # Save the received file
+                        FileManager.save_file(save_path, file_data, self.client_connection.message_flags['END'])
+                        print(f"File received and saved as {save_path}")
+                        FileManager.decrypt_file(save_path, aes_key)
+
+                    else:
+                        print("Failed to receive file.")
+                else:
+                    print("File transfer rejected.")
+            except Exception as e:
+                ErrorHandler.error_handling("receive_file", e)
 
     
 
